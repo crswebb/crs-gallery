@@ -4,9 +4,13 @@ Plugin Name: CRS Gallery
 Plugin URI: https://github.com/crswebb/crs-gallery
 Description: Ett WordPress-plugin för bildgallerier.
 Version: 1.0.0
+Requires at least: 5.8
+Requires PHP: 7.4
 Author: CRS Webbproduktion AB
 Author URI: https://crswebb.se
 Text Domain: crs-gallery
+License: MIT
+License URI: https://opensource.org/licenses/MIT
 */
 
 if (!defined('ABSPATH')) {
