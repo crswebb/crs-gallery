@@ -14,12 +14,16 @@ function crs_gallery_admin_page()
         return;
     }
 
-    // Hantera formuläret för att lägga till/redigera galleri
+    // Hantera formuläret för att lägga till/redigera galleri.
+    // crs_save_gallery() verifies the nonce and capability before processing.
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in crs_save_gallery().
     if (isset($_POST['submit_gallery'])) {
         crs_save_gallery();
     }
 
-    // Hämta befintligt galleri från databasen för redigering, om en redigerings-ID är angiven
+    // Read-only screen routing: which gallery to edit. The value is intval'd and
+    // the capability is checked below before anything is displayed.
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing; value is intval'd and capability-checked below.
     $gallery_id = isset($_GET['edit']) ? intval($_GET['edit']) : 0;
     // Kontrollera om användaren har tillräckliga behörigheter för att redigera gallerier
     if ($gallery_id > 0 && !current_user_can('edit_crs_gallery', $gallery_id)) {

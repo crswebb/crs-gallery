@@ -61,7 +61,10 @@ function crs_display_galleries_list()
             echo '<span class="gallery-actions">';
             echo '<a href="' . esc_url($edit_link) . '">' . esc_html__('Edit', 'crs-gallery') . '</a>';
             echo '</span>';
-            echo '<div class="gallery-images">' . crs_display_gallery_images($gallery_id) . '</div>';
+            // crs_display_gallery_images() returns markup whose dynamic parts
+            // are already escaped (esc_url/esc_attr); wp_kses_post keeps the
+            // safe <img>/<div> structure and satisfies output-escaping checks.
+            echo '<div class="gallery-images">' . wp_kses_post(crs_display_gallery_images($gallery_id)) . '</div>';
             echo '</li>';
         }
         echo '</ul>';
@@ -179,9 +182,14 @@ function crs_save_gallery()
 
 function crs_upload_gallery_images($gallery_id)
 {
+    // The nonce and capability are verified in crs_save_gallery() before this
+    // helper is called; $_FILES members are sanitized individually below
+    // before use, and wp_handle_upload() validates the actual file.
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in crs_save_gallery() caller.
     if (!empty($_FILES['gallery_images']['name'])) {
         $attachment_ids = array();
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- nonce verified in caller; each member sanitized below before use.
         $gallery_images = $_FILES['gallery_images'];
 
         if (!empty($gallery_images['name'][0])) {

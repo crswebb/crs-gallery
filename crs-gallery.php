@@ -22,7 +22,6 @@ if (!defined('ABSPATH')) {
 require_once(plugin_dir_path(__FILE__) . 'admin.php');
 require_once(plugin_dir_path(__FILE__) . 'crs-gallery-block.php');
 
-add_action('init', 'crs_gallery_load_textdomain');
 add_action('init', 'crs_register_gallery_post_type');
 add_action('rest_api_init', 'crs_register_gallery_endpoint');
 add_action('admin_enqueue_scripts', 'crs_gallery_admin_enqueue_scripts');
@@ -38,8 +37,6 @@ function crs_gallery_activate()
     crs_set_gallery_capabilities();
 }
 
-// Ladda översättningar för PHP-strängar.
-function crs_gallery_load_textdomain()
-{
-    load_plugin_textdomain('crs-gallery', false, dirname(plugin_basename(__FILE__)) . '/languages');
-}
+// Translations are loaded automatically by WordPress for plugins hosted on
+// WordPress.org (and from the bundled /languages folder via the Domain Path
+// header on WordPress 6.7+), so no load_plugin_textdomain() call is needed.
