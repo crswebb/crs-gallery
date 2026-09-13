@@ -1,4 +1,26 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit; // Förhindra direkt åtkomst
+}
+
+// Registrera anpassad inläggstyp för gallerier
+function crs_register_gallery_post_type()
+{
+    register_post_type('crs_gallery', array(
+        'labels' => array(
+            'name' => __('Gallerier', 'crs-gallery'),
+            'singular_name' => __('Galleri', 'crs-gallery'),
+        ),
+        'public' => false,
+        'show_ui' => false,
+        'has_archive' => false,
+        'hierarchical' => false,
+        'supports' => array('title', 'editor'),
+        'capability_type' => array('crs_gallery', 'crs_galleries'),
+        'map_meta_cap' => true,
+    ));
+}
+
 // Funktion för att hämta alla gallerier från databasen
 function crs_get_all_galleries()
 {
@@ -53,6 +75,10 @@ function crs_set_gallery_capabilities()
 {
     $role = get_role('administrator'); // Anpassa rollnamnet om det behövs
 
+    if (!$role) {
+        return;
+    }
+
     // Ge administratörsrollen behörighet att redigera galleri-inlägg
     $role->add_cap('edit_crs_gallery');
     $role->add_cap('edit_crs_galleries');
@@ -78,10 +104,20 @@ function crs_gallery_admin_enqueue_scripts()
 
 function crs_save_gallery()
 {
+    // Verifiera nonce (skydd mot CSRF)
+    if (!isset($_POST['crs_gallery_nonce']) || !wp_verify_nonce($_POST['crs_gallery_nonce'], 'crs_save_gallery')) {
+        wp_die(__('Säkerhetskontrollen misslyckades. Försök igen.', 'crs-gallery'));
+    }
+
+    // Kontrollera behörighet
+    if (!current_user_can('manage_options')) {
+        wp_die(__('Du har inte tillräckliga behörigheter att spara gallerier.', 'crs-gallery'));
+    }
+
     // Validera formulärdata
     $gallery_id = isset($_POST['gallery_id']) ? intval($_POST['gallery_id']) : 0;
-    $gallery_name = sanitize_text_field($_POST['gallery_name']);
-    $gallery_description = sanitize_textarea_field($_POST['gallery_description']);
+    $gallery_name = isset($_POST['gallery_name']) ? sanitize_text_field($_POST['gallery_name']) : '';
+    $gallery_description = isset($_POST['gallery_description']) ? sanitize_textarea_field($_POST['gallery_description']) : '';
 
     // Lägg till ytterligare validering efter behov
 
@@ -156,6 +192,13 @@ function crs_upload_gallery_images($gallery_id)
                 }
             }
 
+            // Slå ihop med befintliga bilder så att redan uppladdade bilder inte skrivs över
+            $existing_ids = get_post_meta($gallery_id, 'crs_gallery_images', true);
+            if (!is_array($existing_ids)) {
+                $existing_ids = array();
+            }
+            $attachment_ids = array_merge($existing_ids, $attachment_ids);
+
             // Spara bildernas ID i galleriets metadata
             update_post_meta($gallery_id, 'crs_gallery_images', $attachment_ids);
         }
@@ -165,50 +208,65 @@ function crs_upload_gallery_images($gallery_id)
 
 function crs_upload_gallery_image($image_file)
 {
-    $upload_dir = wp_upload_dir();
-    $image_name = sanitize_file_name($image_file['name']);
-    $image_path = $upload_dir['path'] . '/' . $image_name;
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
 
-    if (move_uploaded_file($image_file['tmp_name'], $image_path)) {
-        $attachment = [
-            'guid' => $upload_dir['url'] . '/' . $image_name,
-            'post_mime_type' => $image_file['type'],
-            'post_title' => $image_name,
-            'post_content' => '',
-            'post_status' => 'inherit',
-        ];
+    // Tillåt endast bildfiler – wp_handle_upload validerar den faktiska filtypen
+    $allowed_mimes = array(
+        'jpg|jpeg|jpe' => 'image/jpeg',
+        'gif'          => 'image/gif',
+        'png'          => 'image/png',
+        'webp'         => 'image/webp',
+    );
 
-        $attachment_id = wp_insert_attachment($attachment, $image_path);
-        if (!is_wp_error($attachment_id)) {
-            require_once ABSPATH . 'wp-admin/includes/image.php';
-            $attachment_data = wp_generate_attachment_metadata($attachment_id, $image_path);
-            wp_update_attachment_metadata($attachment_id, $attachment_data);
+    $upload = wp_handle_upload($image_file, array(
+        'test_form' => false,
+        'mimes'     => $allowed_mimes,
+    ));
 
-            return $attachment_id;
-        }
+    if (!$upload || isset($upload['error'])) {
+        return false;
     }
 
-    return false;
+    $attachment = array(
+        'guid'           => $upload['url'],
+        'post_mime_type' => $upload['type'],
+        'post_title'     => sanitize_file_name(pathinfo($upload['file'], PATHINFO_FILENAME)),
+        'post_content'   => '',
+        'post_status'    => 'inherit',
+    );
+
+    $attachment_id = wp_insert_attachment($attachment, $upload['file']);
+    if (is_wp_error($attachment_id) || !$attachment_id) {
+        return false;
+    }
+
+    $attachment_data = wp_generate_attachment_metadata($attachment_id, $upload['file']);
+    wp_update_attachment_metadata($attachment_id, $attachment_data);
+
+    return $attachment_id;
 }
 
 function crs_display_gallery_images($gallery_id)
 {
     $attachment_ids = get_post_meta($gallery_id, 'crs_gallery_images', true);
 
-    if (!empty($attachment_ids)) {
+    $output = '';
+
+    if (!empty($attachment_ids) && is_array($attachment_ids)) {
         foreach ($attachment_ids as $attachment_id) {
             $image_src = wp_get_attachment_image_src($attachment_id, 'thumbnail');
             if ($image_src) {
                 $image_url = $image_src[0];
                 $image_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
-                ?>
-                <div class="crs-gallery-image">
-                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>">
-                </div>
-                <?php
+                $output .= '<div class="crs-gallery-image">';
+                $output .= '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($image_alt) . '">';
+                $output .= '</div>';
             }
         }
     }
+
+    return $output;
 }
 
 

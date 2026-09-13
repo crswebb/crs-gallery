@@ -5,11 +5,6 @@
     var useState = wp.element.useState;
     var useEffect = wp.element.useEffect;
 
-    function getGalleryById(galleries, id) {
-        console.log(galleries);
-        return galleries.find((gallery) => gallery.id === id);
-    }
-
     registerBlockType('crs/gallery', {
         name: 'crs/gallery',
         title: 'CRS Gallery',
@@ -31,7 +26,7 @@
 
             useEffect(function () {
                 wp.apiFetch({
-                    path: '/wp/v1/crs_gallery',
+                    path: '/crs/v1/crs_gallery',
                 })
                     .then(function (response) {
                         props.setAttributes({ galleries: response });
@@ -42,17 +37,6 @@
                         setIsLoading(false);
                     });
             }, []);
-
-            useEffect(() => {
-                const { galleries } = props.attributes;
-                if (galleries.length > 0) {
-                    const gallery = getGalleryById(galleries, galleryId);
-                    if (gallery) {
-                        setTitle(gallery.title);
-                        setImages(gallery.images);
-                    }
-                }
-            }, [galleryId, props.attributes.galleries]);
 
             if (isLoading) {
                 return el(
@@ -69,7 +53,7 @@
             options.unshift({ value: 0, label: 'No gallery selected' });
 
             function onGalleryIdChange(value) {
-                props.setAttributes({ galleryId: value });
+                props.setAttributes({ galleryId: parseInt(value, 10) || 0 });
             }
 
             return el(
@@ -89,28 +73,10 @@
                 )
             );
         },
-        save: function (props) {
-            const { galleryId, galleries } = props.attributes;
-            const gallery = getGalleryById(galleries, galleryId);
-
-            if (!gallery) {
-                return null;
-            }
-
-            const { title, images } = gallery;
-
-            return el(
-                'div',
-                { className: 'gallery' },
-                el('h2', null, title),
-                el(
-                    'div',
-                    { className: 'image-grid' },
-                    images.map((image) =>
-                        el('img', { key: image.id, src: image.url, alt: image.title })
-                    )
-                )
-            );
+        // Dynamiskt block – utdata renderas server-side via render_callback
+        // (crs_render_gallery_block), så save returnerar null.
+        save: function () {
+            return null;
         },
         deprecated: [
             {

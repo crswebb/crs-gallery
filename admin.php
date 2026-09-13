@@ -1,4 +1,8 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit; // Förhindra direkt åtkomst
+}
+
 require_once(plugin_dir_path(__FILE__) . 'admin-functions.php');
 
 
@@ -34,6 +38,7 @@ function crs_gallery_admin_page()
         </h1>
 
         <form method="post" action="" enctype="multipart/form-data">
+            <?php wp_nonce_field('crs_save_gallery', 'crs_gallery_nonce'); ?>
             <label for="gallery-name">Gallerinamn:</label>
             <input type="text" name="gallery_name" id="gallery-name"
                 value="<?php echo ($gallery) ? esc_attr($gallery->post_title) : ''; ?>" required>
@@ -48,7 +53,7 @@ function crs_gallery_admin_page()
             <input type="file" name="gallery_images[]" id="gallery-images" multiple>
 
 
-            <input type="hidden" name="gallery_id" value="<?php echo $gallery_id; ?>">
+            <input type="hidden" name="gallery_id" value="<?php echo esc_attr($gallery_id); ?>">
             <input type="submit" name="submit_gallery" class="button button-primary"
                 value="<?php echo ($gallery_id > 0) ? 'Uppdatera' : 'Spara'; ?>">
         </form>

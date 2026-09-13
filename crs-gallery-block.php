@@ -1,8 +1,12 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit; // Förhindra direkt åtkomst
+}
+
 function crs_register_gallery_endpoint()
 {
     register_rest_route(
-        'wp/v1',
+        'crs/v1',
         '/crs_gallery',
         array(
             'methods' => 'GET',
@@ -36,35 +40,48 @@ function crs_get_galleries()
 // Register Gutenberg block
 function crs_register_gallery_block()
 {
+    $block_js = plugin_dir_path(__FILE__) . 'block.js';
+    $block_css = plugin_dir_path(__FILE__) . 'block.css';
+    $lightbox_js = plugin_dir_path(__FILE__) . 'lightbox.js';
+
     wp_register_script(
         'crs-gallery-block',
         plugins_url('block.js', __FILE__),
-        ['wp-blocks', 'wp-element', 'wp-components', 'wp-data']
+        ['wp-blocks', 'wp-element', 'wp-components', 'wp-data'],
+        file_exists($block_js) ? filemtime($block_js) : false,
+        true
     );
 
-    wp_enqueue_style(
+    // Registrera (men enqueue:a inte) front-end-tillgångar – de laddas
+    // först när blocket faktiskt renderas, se crs_render_gallery_block().
+    wp_register_style(
         'crs-gallery-block-style',
         plugins_url('block.css', __FILE__),
         [],
-        filemtime(plugin_dir_path(__FILE__) . 'block.css')
+        file_exists($block_css) ? filemtime($block_css) : false
     );
 
-    wp_enqueue_script(
+    wp_register_script(
         'crs-lightbox-script',
         plugins_url('lightbox.js', __FILE__),
         [],
-        filemtime(plugin_dir_path(__FILE__) . 'lightbox.js'),
+        file_exists($lightbox_js) ? filemtime($lightbox_js) : false,
         true
     );
 
     register_block_type('crs/gallery', [
         'editor_script' => 'crs-gallery-block',
+        'style' => 'crs-gallery-block-style',
         'render_callback' => 'crs_render_gallery_block',
     ]);
 }
 
 function crs_render_gallery_block($attributes)
 {
+    // Ladda front-end-tillgångar endast när blocket renderas på sidan.
+    wp_enqueue_style('crs-gallery-block-style');
+    wp_enqueue_script('crs-lightbox-script');
+
     $gallery_id = isset($attributes['galleryId']) ? intval($attributes['galleryId']) : 0;
     $attachment_ids = get_post_meta($gallery_id, 'crs_gallery_images', true);
 
