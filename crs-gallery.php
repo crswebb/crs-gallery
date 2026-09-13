@@ -18,6 +18,8 @@ if (!defined('ABSPATH')) {
     exit; // Förhindra direkt åtkomst
 }
 
+define('CRS_GALLERY_VERSION', '1.0.0');
+
 // Inkludera admin.php
 require_once(plugin_dir_path(__FILE__) . 'admin.php');
 require_once(plugin_dir_path(__FILE__) . 'crs-gallery-block.php');
@@ -35,6 +37,21 @@ function crs_gallery_activate()
 {
     crs_register_gallery_post_type();
     crs_set_gallery_capabilities();
+}
+
+// register_activation_hook does not fire on plugin updates, so also seed the
+// capabilities on upgrade. Gated by a stored version so it only runs when the
+// plugin version changes.
+add_action('admin_init', 'crs_gallery_maybe_upgrade');
+
+function crs_gallery_maybe_upgrade()
+{
+    if (get_option('crs_gallery_version') === CRS_GALLERY_VERSION) {
+        return;
+    }
+
+    crs_set_gallery_capabilities();
+    update_option('crs_gallery_version', CRS_GALLERY_VERSION);
 }
 
 // Translations are loaded automatically by WordPress for plugins hosted on

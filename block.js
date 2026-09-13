@@ -81,6 +81,46 @@
         },
         deprecated: [
             {
+                // Matches the previous static save (markup baked into post
+                // content) so existing blocks migrate to this dynamic block
+                // instead of failing Gutenberg validation.
+                attributes: {
+                    galleryId: {
+                        type: 'number',
+                        default: 0,
+                    },
+                    galleries: {
+                        type: 'array',
+                        default: [],
+                    },
+                },
+                save: function (props) {
+                    var galleryId = props.attributes.galleryId;
+                    var galleries = props.attributes.galleries;
+                    var gallery = galleries.find(function (g) {
+                        return g.id === galleryId;
+                    });
+
+                    if (!gallery) {
+                        return null;
+                    }
+
+                    return el(
+                        'div',
+                        { className: 'gallery' },
+                        el('h2', null, gallery.title),
+                        el(
+                            'div',
+                            { className: 'image-grid' },
+                            gallery.images.map(function (image) {
+                                return el('img', { key: image.id, src: image.url, alt: image.title });
+                            })
+                        )
+                    );
+                },
+            },
+            {
+                // Oldest format: a shortcode wrapper.
                 attributes: {
                     galleryId: {
                         type: 'string',
