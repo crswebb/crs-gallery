@@ -3,7 +3,9 @@
 
 /.git
 /.github
+/.claude
 /.gitignore
+/.gitattributes
 /.distignore
 /.wordpress-org
 /node_modules
