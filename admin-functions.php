@@ -8,8 +8,8 @@ function crs_register_gallery_post_type()
 {
     register_post_type('crs_gallery', array(
         'labels' => array(
-            'name' => __('Gallerier', 'crs-gallery'),
-            'singular_name' => __('Galleri', 'crs-gallery'),
+            'name' => __('Galleries', 'crs-gallery'),
+            'singular_name' => __('Gallery', 'crs-gallery'),
         ),
         'public' => false,
         'show_ui' => false,
@@ -59,14 +59,14 @@ function crs_display_galleries_list()
             echo '<li>';
             echo '<strong>' . esc_html($gallery_name) . '</strong>';
             echo '<span class="gallery-actions">';
-            echo '<a href="' . esc_url($edit_link) . '">Redigera</a>';
+            echo '<a href="' . esc_url($edit_link) . '">' . esc_html__('Edit', 'crs-gallery') . '</a>';
             echo '</span>';
             echo '<div class="gallery-images">' . crs_display_gallery_images($gallery_id) . '</div>';
             echo '</li>';
         }
         echo '</ul>';
     } else {
-        echo '<p>Inga gallerier hittades.</p>';
+        echo '<p>' . esc_html__('No galleries found.', 'crs-gallery') . '</p>';
     }
 }
 
@@ -96,28 +96,38 @@ function crs_set_gallery_capabilities()
 
 
 // Funktion för att inkludera CSS och JavaScript för administrationsidan
-function crs_gallery_admin_enqueue_scripts()
+function crs_gallery_admin_enqueue_scripts($hook_suffix)
 {
-    wp_enqueue_style('crs-gallery-admin-styles', plugin_dir_url(__FILE__) . 'admin.css');
-    wp_enqueue_script('crs-gallery-admin-script', plugin_dir_url(__FILE__) . 'admin.js', array('jquery'), '1.0', true);
+    // Ladda endast på pluginets egen adminsida (top-level-menyn crs-gallery-admin).
+    if ('toplevel_page_crs-gallery-admin' !== $hook_suffix) {
+        return;
+    }
+
+    $admin_css = plugin_dir_path(__FILE__) . 'admin.css';
+    wp_enqueue_style(
+        'crs-gallery-admin-styles',
+        plugin_dir_url(__FILE__) . 'admin.css',
+        array(),
+        file_exists($admin_css) ? filemtime($admin_css) : false
+    );
 }
 
 function crs_save_gallery()
 {
     // Verifiera nonce (skydd mot CSRF)
-    if (!isset($_POST['crs_gallery_nonce']) || !wp_verify_nonce($_POST['crs_gallery_nonce'], 'crs_save_gallery')) {
-        wp_die(__('Säkerhetskontrollen misslyckades. Försök igen.', 'crs-gallery'));
+    if (!isset($_POST['crs_gallery_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['crs_gallery_nonce'])), 'crs_save_gallery')) {
+        wp_die(esc_html__('The security check failed. Please try again.', 'crs-gallery'));
     }
 
     // Kontrollera behörighet
     if (!current_user_can('manage_options')) {
-        wp_die(__('Du har inte tillräckliga behörigheter att spara gallerier.', 'crs-gallery'));
+        wp_die(esc_html__('You do not have sufficient permissions to save galleries.', 'crs-gallery'));
     }
 
     // Validera formulärdata
     $gallery_id = isset($_POST['gallery_id']) ? intval($_POST['gallery_id']) : 0;
-    $gallery_name = isset($_POST['gallery_name']) ? sanitize_text_field($_POST['gallery_name']) : '';
-    $gallery_description = isset($_POST['gallery_description']) ? sanitize_textarea_field($_POST['gallery_description']) : '';
+    $gallery_name = isset($_POST['gallery_name']) ? sanitize_text_field(wp_unslash($_POST['gallery_name'])) : '';
+    $gallery_description = isset($_POST['gallery_description']) ? sanitize_textarea_field(wp_unslash($_POST['gallery_description'])) : '';
 
     // Lägg till ytterligare validering efter behov
 
@@ -135,10 +145,10 @@ function crs_save_gallery()
 
         if ($updated) {
             // Visa meddelande om att galleriet har uppdaterats
-            echo '<div class="updated"><p>Galleriet har uppdaterats.</p></div>';
+            echo '<div class="updated"><p>' . esc_html__('The gallery has been updated.', 'crs-gallery') . '</p></div>';
         } else {
             // Visa felmeddelande om uppdatering misslyckades
-            echo '<div class="error"><p>Det uppstod ett fel. Galleriet kunde inte uppdateras.</p></div>';
+            echo '<div class="error"><p>' . esc_html__('An error occurred. The gallery could not be updated.', 'crs-gallery') . '</p></div>';
         }
     } else {
         // Skapa ett nytt galleri
@@ -159,10 +169,10 @@ function crs_save_gallery()
             crs_upload_gallery_images($gallery_id);
 
             // Visa meddelande om att galleriet har sparats
-            echo '<div class="updated"><p>Galleriet har sparats.</p></div>';
+            echo '<div class="updated"><p>' . esc_html__('The gallery has been saved.', 'crs-gallery') . '</p></div>';
         } else {
             // Visa felmeddelande om sparandet misslyckades
-            echo '<div class="error"><p>Det uppstod ett fel. Galleriet kunde inte sparas.</p></div>';
+            echo '<div class="error"><p>' . esc_html__('An error occurred. The gallery could not be saved.', 'crs-gallery') . '</p></div>';
         }
     }
 }
@@ -179,11 +189,11 @@ function crs_upload_gallery_images($gallery_id)
 
             foreach ($gallery_images['name'] as $index => $name) {
                 $image_file = [
-                    'name' => $gallery_images['name'][$index],
-                    'type' => $gallery_images['type'][$index],
-                    'tmp_name' => $gallery_images['tmp_name'][$index],
-                    'error' => $gallery_images['error'][$index],
-                    'size' => $gallery_images['size'][$index],
+                    'name'     => sanitize_file_name(wp_unslash($gallery_images['name'][$index])),
+                    'type'     => sanitize_mime_type(wp_unslash($gallery_images['type'][$index])),
+                    'tmp_name' => sanitize_text_field(wp_unslash($gallery_images['tmp_name'][$index])),
+                    'error'    => intval($gallery_images['error'][$index]),
+                    'size'     => intval($gallery_images['size'][$index]),
                 ];
 
                 $attachment_id = crs_upload_gallery_image($image_file);
@@ -274,9 +284,9 @@ function crs_display_gallery_images($gallery_id)
 function crs_gallery_register_admin_menu()
 {
     add_menu_page(
-        'CRS Gallery',
+        __('CRS Gallery', 'crs-gallery'),
         // Sidtitel
-        'CRS Gallery',
+        __('CRS Gallery', 'crs-gallery'),
         // Menynamn
         'manage_options',
         // Tillstånd för att visa menyn

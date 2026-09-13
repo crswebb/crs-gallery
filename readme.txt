@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-Ett WordPress-plugin för bildgallerier med en Gutenberg-block och lightbox.
+A WordPress plugin for image galleries with a Gutenberg block and lightbox.
 
 == Description ==
 

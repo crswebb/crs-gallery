@@ -2,13 +2,14 @@
 /*
 Plugin Name: CRS Gallery
 Plugin URI: https://github.com/crswebb/crs-gallery
-Description: Ett WordPress-plugin för bildgallerier.
+Description: A WordPress plugin for image galleries with a Gutenberg block and lightbox.
 Version: 1.0.0
 Requires at least: 5.8
 Requires PHP: 7.4
 Author: CRS Webbproduktion AB
 Author URI: https://crswebb.se
 Text Domain: crs-gallery
+Domain Path: /languages
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 */
@@ -21,6 +22,7 @@ if (!defined('ABSPATH')) {
 require_once(plugin_dir_path(__FILE__) . 'admin.php');
 require_once(plugin_dir_path(__FILE__) . 'crs-gallery-block.php');
 
+add_action('init', 'crs_gallery_load_textdomain');
 add_action('init', 'crs_register_gallery_post_type');
 add_action('rest_api_init', 'crs_register_gallery_endpoint');
 add_action('admin_enqueue_scripts', 'crs_gallery_admin_enqueue_scripts');
@@ -34,4 +36,10 @@ function crs_gallery_activate()
 {
     crs_register_gallery_post_type();
     crs_set_gallery_capabilities();
+}
+
+// Ladda översättningar för PHP-strängar.
+function crs_gallery_load_textdomain()
+{
+    load_plugin_textdomain('crs-gallery', false, dirname(plugin_basename(__FILE__)) . '/languages');
 }

@@ -11,7 +11,10 @@ function crs_register_gallery_endpoint()
         array(
             'methods' => 'GET',
             'callback' => 'crs_get_galleries',
-            'permission_callback' => '__return_true',
+            'permission_callback' => function () {
+                // Endast för blockredigeraren – kräver redigeringsbehörighet.
+                return current_user_can('edit_posts');
+            },
         )
     );
 }
@@ -47,10 +50,13 @@ function crs_register_gallery_block()
     wp_register_script(
         'crs-gallery-block',
         plugins_url('block.js', __FILE__),
-        ['wp-blocks', 'wp-element', 'wp-components', 'wp-data'],
+        ['wp-blocks', 'wp-element', 'wp-components', 'wp-data', 'wp-api-fetch', 'wp-i18n'],
         file_exists($block_js) ? filemtime($block_js) : false,
         true
     );
+
+    // Ladda JS-översättningar för blockredigeraren (kräver genererad JSON, se build).
+    wp_set_script_translations('crs-gallery-block', 'crs-gallery', plugin_dir_path(__FILE__) . 'languages');
 
     // Registrera (men enqueue:a inte) front-end-tillgångar – de laddas
     // först när blocket faktiskt renderas, se crs_render_gallery_block().

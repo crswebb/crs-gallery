@@ -1,0 +1,111 @@
+# Copyright (C) 2026 CRS Webbproduktion AB
+# This file is distributed under the same license as the CRS Gallery plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: CRS Gallery 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/crswebb/crs-gallery/issues\n"
+"Language-Team: CRS Webbproduktion AB <stefan@crswebb.se>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-13T00:00:00+00:00\n"
+"X-Generator: manual\n"
+"X-Domain: crs-gallery\n"
+
+#. Plugin name / block title / admin menu label.
+#: crs-gallery-block.php admin-functions.php block.js
+msgid "CRS Gallery"
+msgstr ""
+
+#: admin-functions.php
+msgid "Galleries"
+msgstr ""
+
+#. Post type singular label and block gallery-select label.
+#: admin-functions.php block.js
+msgid "Gallery"
+msgstr ""
+
+#: admin-functions.php
+msgid "Edit"
+msgstr ""
+
+#: admin-functions.php
+msgid "No galleries found."
+msgstr ""
+
+#: admin-functions.php
+msgid "The security check failed. Please try again."
+msgstr ""
+
+#: admin-functions.php
+msgid "You do not have sufficient permissions to save galleries."
+msgstr ""
+
+#: admin-functions.php
+msgid "The gallery has been updated."
+msgstr ""
+
+#: admin-functions.php
+msgid "An error occurred. The gallery could not be updated."
+msgstr ""
+
+#: admin-functions.php
+msgid "The gallery has been saved."
+msgstr ""
+
+#: admin-functions.php
+msgid "An error occurred. The gallery could not be saved."
+msgstr ""
+
+#: admin.php
+msgid "You do not have sufficient permissions to edit this gallery."
+msgstr ""
+
+#: admin.php
+msgid "Edit Gallery"
+msgstr ""
+
+#: admin.php
+msgid "Add Gallery"
+msgstr ""
+
+#: admin.php
+msgid "Gallery name:"
+msgstr ""
+
+#: admin.php
+msgid "Description:"
+msgstr ""
+
+#: admin.php
+msgid "Images:"
+msgstr ""
+
+#: admin.php
+msgid "Update"
+msgstr ""
+
+#: admin.php
+msgid "Save"
+msgstr ""
+
+#: admin.php
+msgid "Existing galleries"
+msgstr ""
+
+#: block.js
+msgid "Loading galleries..."
+msgstr ""
+
+#: block.js
+msgid "No gallery selected"
+msgstr ""
+
+#: block.js
+msgid "Selected Gallery ID: "
+msgstr ""
+
+#: block.js
+msgid "None"
+msgstr ""

@@ -4,12 +4,13 @@
     var SelectControl = components.SelectControl;
     var useState = wp.element.useState;
     var useEffect = wp.element.useEffect;
+    var __ = wp.i18n.__;
 
     registerBlockType('crs/gallery', {
         name: 'crs/gallery',
-        title: 'CRS Gallery',
+        title: __('CRS Gallery', 'crs-gallery'),
         icon: 'format-gallery',
-        category: 'common',
+        category: 'media',
         attributes: {
             galleryId: {
                 type: 'number',
@@ -42,7 +43,7 @@
                 return el(
                     'div',
                     { className: 'loading-message' },
-                    'Loading galleries...'
+                    __('Loading galleries...', 'crs-gallery')
                 );
             }
 
@@ -50,7 +51,7 @@
                 return { value: gallery.id, label: gallery.title };
             });
 
-            options.unshift({ value: 0, label: 'No gallery selected' });
+            options.unshift({ value: 0, label: __('No gallery selected', 'crs-gallery') });
 
             function onGalleryIdChange(value) {
                 props.setAttributes({ galleryId: parseInt(value, 10) || 0 });
@@ -60,7 +61,7 @@
                 'div',
                 { className: 'gallery-block' },
                 el(SelectControl, {
-                    label: 'Gallery',
+                    label: __('Gallery', 'crs-gallery'),
                     value: galleryId,
                     options: options,
                     onChange: onGalleryIdChange,
@@ -68,8 +69,8 @@
                 el(
                     'p',
                     null,
-                    'Selected Gallery ID: ',
-                    galleryId !== 0 ? galleryId : 'None'
+                    __('Selected Gallery ID: ', 'crs-gallery'),
+                    galleryId !== 0 ? galleryId : __('None', 'crs-gallery')
                 )
             );
         },
