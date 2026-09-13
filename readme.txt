@@ -12,37 +12,37 @@ A WordPress plugin for image galleries with a Gutenberg block and lightbox.
 
 == Description ==
 
-CRS Gallery låter dig skapa bildgallerier och visa dem på din webbplats via
-ett Gutenberg-block. Besökare kan klicka på en miniatyr för att öppna bilden i
-en lightbox.
+CRS Gallery lets you create image galleries and display them on your site with
+a Gutenberg block. Visitors can click a thumbnail to open the image in a
+lightbox.
 
-Funktioner:
+Features:
 
-* Skapa och hantera gallerier från administrationspanelen.
-* Ladda upp flera bilder per galleri.
-* Visa ett galleri var som helst med Gutenberg-blocket "CRS Gallery".
-* Inbyggd lightbox för bildvisning.
+* Create and manage galleries from the admin panel.
+* Upload multiple images per gallery.
+* Display a gallery anywhere with the "CRS Gallery" Gutenberg block.
+* Built-in lightbox for viewing images.
 
 == Installation ==
 
-1. Ladda upp `crs-gallery`-mappen till katalogen `/wp-content/plugins/`, eller
-   installera pluginet direkt via WordPress plugin-katalog.
-2. Aktivera pluginet via menyn "Plugin" i WordPress.
-3. Gå till "CRS Gallery" i administrationsmenyn för att skapa ditt första galleri.
-4. Lägg till "CRS Gallery"-blocket på en sida eller ett inlägg och välj galleriet.
+1. Upload the `crs-gallery` folder to the `/wp-content/plugins/` directory, or
+   install the plugin directly through the WordPress plugin directory.
+2. Activate the plugin through the "Plugins" screen in WordPress.
+3. Go to "CRS Gallery" in the admin menu to create your first gallery.
+4. Add the "CRS Gallery" block to a page or post and select the gallery.
 
 == Frequently Asked Questions ==
 
-= Vilka bildformat stöds? =
+= Which image formats are supported? =
 
-JPEG, PNG, GIF och WebP.
+JPEG, PNG, GIF and WebP.
 
 == Changelog ==
 
 = 1.0.0 =
-* Första utgåvan.
+* Initial release.
 
 == Upgrade Notice ==
 
 = 1.0.0 =
-Första utgåvan.
+Initial release.
