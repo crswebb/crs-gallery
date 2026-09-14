@@ -1,0 +1,115 @@
+# Swedish translation for the CRS Gallery plugin.
+# Copyright (C) 2026 CRS Webbproduktion AB
+# This file is distributed under the same license as the CRS Gallery plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: CRS Gallery 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/crswebb/crs-gallery/issues\n"
+"Last-Translator: CRS Webbproduktion AB <stefan@crswebb.se>\n"
+"Language-Team: CRS Webbproduktion AB <stefan@crswebb.se>\n"
+"Language: sv_SE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2026-09-13 00:00+0000\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: manual\n"
+"X-Domain: crs-gallery\n"
+
+#. Plugin name / block title / admin menu label.
+#: crs-gallery-block.php admin-functions.php block.js
+msgid "CRS Gallery"
+msgstr "CRS Gallery"
+
+#: admin-functions.php
+msgid "Galleries"
+msgstr "Gallerier"
+
+#. Post type singular label and block gallery-select label.
+#: admin-functions.php block.js
+msgid "Gallery"
+msgstr "Galleri"
+
+#: admin-functions.php
+msgid "Edit"
+msgstr "Redigera"
+
+#: admin-functions.php
+msgid "No galleries found."
+msgstr "Inga gallerier hittades."
+
+#: admin-functions.php
+msgid "The security check failed. Please try again."
+msgstr "Säkerhetskontrollen misslyckades. Försök igen."
+
+#: admin-functions.php
+msgid "You do not have sufficient permissions to save galleries."
+msgstr "Du har inte tillräckliga behörigheter att spara gallerier."
+
+#: admin-functions.php
+msgid "The gallery has been updated."
+msgstr "Galleriet har uppdaterats."
+
+#: admin-functions.php
+msgid "An error occurred. The gallery could not be updated."
+msgstr "Det uppstod ett fel. Galleriet kunde inte uppdateras."
+
+#: admin-functions.php
+msgid "The gallery has been saved."
+msgstr "Galleriet har sparats."
+
+#: admin-functions.php
+msgid "An error occurred. The gallery could not be saved."
+msgstr "Det uppstod ett fel. Galleriet kunde inte sparas."
+
+#: admin.php
+msgid "You do not have sufficient permissions to edit this gallery."
+msgstr "Du har inte tillräckliga behörigheter att redigera detta galleri."
+
+#: admin.php
+msgid "Edit Gallery"
+msgstr "Redigera Galleri"
+
+#: admin.php
+msgid "Add Gallery"
+msgstr "Lägg till Galleri"
+
+#: admin.php
+msgid "Gallery name:"
+msgstr "Gallerinamn:"
+
+#: admin.php
+msgid "Description:"
+msgstr "Beskrivning:"
+
+#: admin.php
+msgid "Images:"
+msgstr "Bilder:"
+
+#: admin.php
+msgid "Update"
+msgstr "Uppdatera"
+
+#: admin.php
+msgid "Save"
+msgstr "Spara"
+
+#: admin.php
+msgid "Existing galleries"
+msgstr "Befintliga gallerier"
+
+#: block.js
+msgid "Loading galleries..."
+msgstr "Laddar gallerier..."
+
+#: block.js
+msgid "No gallery selected"
+msgstr "Inget galleri valt"
+
+#: block.js
+msgid "Selected Gallery ID: "
+msgstr "Valt galleri-ID: "
+
+#: block.js
+msgid "None"
+msgstr "Ingen"

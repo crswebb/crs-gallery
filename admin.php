@@ -1,4 +1,8 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit; // Förhindra direkt åtkomst
+}
+
 require_once(plugin_dir_path(__FILE__) . 'admin-functions.php');
 
 
@@ -10,16 +14,20 @@ function crs_gallery_admin_page()
         return;
     }
 
-    // Hantera formuläret för att lägga till/redigera galleri
+    // Hantera formuläret för att lägga till/redigera galleri.
+    // crs_save_gallery() verifies the nonce and capability before processing.
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in crs_save_gallery().
     if (isset($_POST['submit_gallery'])) {
         crs_save_gallery();
     }
 
-    // Hämta befintligt galleri från databasen för redigering, om en redigerings-ID är angiven
+    // Read-only screen routing: which gallery to edit. The value is intval'd and
+    // the capability is checked below before anything is displayed.
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only routing; value is intval'd and capability-checked below.
     $gallery_id = isset($_GET['edit']) ? intval($_GET['edit']) : 0;
     // Kontrollera om användaren har tillräckliga behörigheter för att redigera gallerier
     if ($gallery_id > 0 && !current_user_can('edit_crs_gallery', $gallery_id)) {
-        wp_die(__('Du har inte tillräckliga behörigheter att redigera detta galleri.', 'crs-gallery'));
+        wp_die(esc_html__('You do not have sufficient permissions to edit this gallery.', 'crs-gallery'));
     }
     $gallery = null;
     if ($gallery_id > 0) {
@@ -30,32 +38,33 @@ function crs_gallery_admin_page()
     ?>
     <div class="wrap">
         <h1>
-            <?php echo ($gallery_id > 0) ? 'Redigera Galleri' : 'Lägg till Galleri'; ?>
+            <?php echo ($gallery_id > 0) ? esc_html__('Edit Gallery', 'crs-gallery') : esc_html__('Add Gallery', 'crs-gallery'); ?>
         </h1>
 
         <form method="post" action="" enctype="multipart/form-data">
-            <label for="gallery-name">Gallerinamn:</label>
+            <?php wp_nonce_field('crs_save_gallery', 'crs_gallery_nonce'); ?>
+            <label for="gallery-name"><?php esc_html_e('Gallery name:', 'crs-gallery'); ?></label>
             <input type="text" name="gallery_name" id="gallery-name"
                 value="<?php echo ($gallery) ? esc_attr($gallery->post_title) : ''; ?>" required>
 
-            <label for="gallery-description">Beskrivning:</label>
+            <label for="gallery-description"><?php esc_html_e('Description:', 'crs-gallery'); ?></label>
             <textarea name="gallery_description" id="gallery-description"
                 rows="4"><?php echo ($gallery) ? esc_textarea($gallery->post_content) : ''; ?></textarea>
 
             <!-- Lägg till andra inställningar och fält efter behov -->
 
-            <label for="gallery-images">Bilder:</label>
+            <label for="gallery-images"><?php esc_html_e('Images:', 'crs-gallery'); ?></label>
             <input type="file" name="gallery_images[]" id="gallery-images" multiple>
 
 
-            <input type="hidden" name="gallery_id" value="<?php echo $gallery_id; ?>">
+            <input type="hidden" name="gallery_id" value="<?php echo esc_attr($gallery_id); ?>">
             <input type="submit" name="submit_gallery" class="button button-primary"
-                value="<?php echo ($gallery_id > 0) ? 'Uppdatera' : 'Spara'; ?>">
+                value="<?php echo ($gallery_id > 0) ? esc_attr__('Update', 'crs-gallery') : esc_attr__('Save', 'crs-gallery'); ?>">
         </form>
     </div>
 
     <div class="galleries-list">
-        <h2>Befintliga gallerier</h2>
+        <h2><?php esc_html_e('Existing galleries', 'crs-gallery'); ?></h2>
         <?php crs_display_galleries_list(); ?>
     </div>
 

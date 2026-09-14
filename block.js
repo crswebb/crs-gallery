@@ -4,17 +4,13 @@
     var SelectControl = components.SelectControl;
     var useState = wp.element.useState;
     var useEffect = wp.element.useEffect;
-
-    function getGalleryById(galleries, id) {
-        console.log(galleries);
-        return galleries.find((gallery) => gallery.id === id);
-    }
+    var __ = wp.i18n.__;
 
     registerBlockType('crs/gallery', {
         name: 'crs/gallery',
-        title: 'CRS Gallery',
+        title: __('CRS Gallery', 'crs-gallery'),
         icon: 'format-gallery',
-        category: 'common',
+        category: 'media',
         attributes: {
             galleryId: {
                 type: 'number',
@@ -31,7 +27,7 @@
 
             useEffect(function () {
                 wp.apiFetch({
-                    path: '/wp/v1/crs_gallery',
+                    path: '/crs/v1/crs_gallery',
                 })
                     .then(function (response) {
                         props.setAttributes({ galleries: response });
@@ -43,22 +39,11 @@
                     });
             }, []);
 
-            useEffect(() => {
-                const { galleries } = props.attributes;
-                if (galleries.length > 0) {
-                    const gallery = getGalleryById(galleries, galleryId);
-                    if (gallery) {
-                        setTitle(gallery.title);
-                        setImages(gallery.images);
-                    }
-                }
-            }, [galleryId, props.attributes.galleries]);
-
             if (isLoading) {
                 return el(
                     'div',
                     { className: 'loading-message' },
-                    'Loading galleries...'
+                    __('Loading galleries...', 'crs-gallery')
                 );
             }
 
@@ -66,17 +51,17 @@
                 return { value: gallery.id, label: gallery.title };
             });
 
-            options.unshift({ value: 0, label: 'No gallery selected' });
+            options.unshift({ value: 0, label: __('No gallery selected', 'crs-gallery') });
 
             function onGalleryIdChange(value) {
-                props.setAttributes({ galleryId: value });
+                props.setAttributes({ galleryId: parseInt(value, 10) || 0 });
             }
 
             return el(
                 'div',
                 { className: 'gallery-block' },
                 el(SelectControl, {
-                    label: 'Gallery',
+                    label: __('Gallery', 'crs-gallery'),
                     value: galleryId,
                     options: options,
                     onChange: onGalleryIdChange,
@@ -84,36 +69,58 @@
                 el(
                     'p',
                     null,
-                    'Selected Gallery ID: ',
-                    galleryId !== 0 ? galleryId : 'None'
+                    __('Selected Gallery ID: ', 'crs-gallery'),
+                    galleryId !== 0 ? galleryId : __('None', 'crs-gallery')
                 )
             );
         },
-        save: function (props) {
-            const { galleryId, galleries } = props.attributes;
-            const gallery = getGalleryById(galleries, galleryId);
-
-            if (!gallery) {
-                return null;
-            }
-
-            const { title, images } = gallery;
-
-            return el(
-                'div',
-                { className: 'gallery' },
-                el('h2', null, title),
-                el(
-                    'div',
-                    { className: 'image-grid' },
-                    images.map((image) =>
-                        el('img', { key: image.id, src: image.url, alt: image.title })
-                    )
-                )
-            );
+        // Dynamiskt block – utdata renderas server-side via render_callback
+        // (crs_render_gallery_block), så save returnerar null.
+        save: function () {
+            return null;
         },
         deprecated: [
             {
+                // Matches the previous static save (markup baked into post
+                // content) so existing blocks migrate to this dynamic block
+                // instead of failing Gutenberg validation.
+                attributes: {
+                    galleryId: {
+                        type: 'number',
+                        default: 0,
+                    },
+                    galleries: {
+                        type: 'array',
+                        default: [],
+                    },
+                },
+                save: function (props) {
+                    var galleryId = props.attributes.galleryId;
+                    var galleries = props.attributes.galleries;
+                    var gallery = galleries.find(function (g) {
+                        return g.id === galleryId;
+                    });
+
+                    if (!gallery) {
+                        return null;
+                    }
+
+                    return el(
+                        'div',
+                        { className: 'gallery' },
+                        el('h2', null, gallery.title),
+                        el(
+                            'div',
+                            { className: 'image-grid' },
+                            gallery.images.map(function (image) {
+                                return el('img', { key: image.id, src: image.url, alt: image.title });
+                            })
+                        )
+                    );
+                },
+            },
+            {
+                // Oldest format: a shortcode wrapper.
                 attributes: {
                     galleryId: {
                         type: 'string',
